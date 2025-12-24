@@ -1,7 +1,16 @@
 const { Telegraf, Markup } = require('telegraf');
 const { startWhatsApp, cekUrutanGrup, cekViaLink } = require('./lib/whatsapp');
+const { botToken, ownerId } = require('./settings');
 
-const bot = new Telegraf('TOKEN_BOT_TELEGRAM_KAMU_DISINI');
+const bot = new Telegraf(botToken);
+
+const checkOwner = (ctx, next) => {
+    if (ctx.from.id.toString() === ownerId.toString()) {
+        return next();
+    } else {
+        return ctx.reply("❌ Akses Ditolak. Anda bukan pemilik bot ini.");
+    }
+};
 
 const mainMenu = (ctx) => {
     const text = `🤖 *WHATSAPP GROUP ANALYZER*\n\n` +
@@ -25,6 +34,8 @@ const mainMenu = (ctx) => {
         ctx.reply(text, { parse_mode: 'Markdown', ...buttons });
     }
 };
+
+bot.use(checkOwner);
 
 bot.start((ctx) => mainMenu(ctx));
 
